@@ -1,0 +1,91 @@
+Package: vcpkg-cmake-config
+Version: 2024-05-23
+Architecture: x64-windows
+Multi-Arch: same
+Abi: 2b61299d0e0d7d51d8674373e4dd89dc40a01798ce8059fb2356feb33eb0a0aa
+Status: install ok installed
+
+Package: vcpkg-cmake
+Version: 2024-04-23
+Architecture: x64-windows
+Multi-Arch: same
+Abi: 18e1014c251e4178f3dcfed18c77e41549598987e2e7f18da3459d2fbd08bbc2
+Status: install ok installed
+
+Package: egl-registry
+Version: 2025-05-27
+Architecture: x64-windows
+Multi-Arch: same
+Abi: 6c7fef873e270c1d980fcca22375066f10ead3ce187f88ce17b8dc3de8e5a2c2
+Description: EGL API and Extension Registry
+Status: install ok installed
+
+Package: opengl-registry
+Version: 2026-01-26
+Depends: egl-registry
+Architecture: x64-windows
+Multi-Arch: same
+Abi: 411cd4fe6c93b4432ddb3d18222368f239f93909df8a2d70a8a4f0499463bcca
+Description: OpenGL, OpenGL ES, and OpenGL ES-SC API and Extension Registry
+Status: install ok installed
+
+Package: glad
+Version: 0.1.36
+Depends: egl-registry, opengl-registry, vcpkg-cmake, vcpkg-cmake-config
+Architecture: x64-windows
+Multi-Arch: same
+Abi: d53bf0c6a98196eca50a5963cc35044242ac633afbc96af3f6c327285bafb771
+Description: Multi-Language Vulkan/GL/GLES/EGL/GLX/WGL Loader-Generator based on the official specs.
+Default-Features: loader
+Status: install ok installed
+
+Package: glad
+Feature: loader
+Architecture: x64-windows
+Multi-Arch: same
+Description: Generate loader logic.
+Status: install ok installed
+
+Package: glfw3
+Version: 3.4
+Port-Version: 1
+Depends: vcpkg-cmake, vcpkg-cmake-config
+Architecture: x64-windows
+Multi-Arch: same
+Abi: fada9c2dabcb2bfa0b35ee66b5bdcfb84422b7da110e92678d8ed2b14ab3fbdb
+Description: GLFW is a free, Open Source, multi-platform library for OpenGL, OpenGL ES and Vulkan application development. It provides a simple, platform-independent API for creating windows, contexts and surfaces, reading input, handling events, etc.
+Status: install ok installed
+
+Package: glm
+Version: 1.0.3
+Depends: vcpkg-cmake, vcpkg-cmake-config
+Architecture: x64-windows
+Multi-Arch: same
+Abi: 16857668800a72e5d914332dd62aa5a02849aeb832a816afcb6c19e28f301bb2
+Description: OpenGL Mathematics (GLM)
+Status: install ok installed
+
+Package: imgui
+Version: 1.92.6
+Depends: vcpkg-cmake, vcpkg-cmake-config
+Architecture: x64-windows
+Multi-Arch: same
+Abi: b40c5cada7a80ffeb82c75c1d7c7cc5c3de8735f20f38c528414d6f716af1b27
+Description: Bloat-free Immediate Mode Graphical User interface for C++ with minimal dependencies.
+Status: install ok installed
+
+Package: imgui
+Feature: glfw-binding
+Depends: glfw3
+Architecture: x64-windows
+Multi-Arch: same
+Description: Make available GLFW binding
+Status: install ok installed
+
+Package: imgui
+Feature: opengl3-binding
+Architecture: x64-windows
+Multi-Arch: same
+Description: Make available OpenGL3/ES/ES2 (modern) binding
+Status: install ok installed
+

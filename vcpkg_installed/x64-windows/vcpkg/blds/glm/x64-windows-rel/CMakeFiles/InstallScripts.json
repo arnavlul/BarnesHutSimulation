@@ -1,0 +1,8 @@
+{
+	"InstallScripts" : 
+	[
+		"C:/Users/Arnav/source/repos/BarnesHutSimulation/vcpkg_installed/x64-windows/vcpkg/blds/glm/x64-windows-rel/cmake_install.cmake",
+		"C:/Users/Arnav/source/repos/BarnesHutSimulation/vcpkg_installed/x64-windows/vcpkg/blds/glm/x64-windows-rel/glm/cmake_install.cmake"
+	],
+	"Parallel" : false
+}

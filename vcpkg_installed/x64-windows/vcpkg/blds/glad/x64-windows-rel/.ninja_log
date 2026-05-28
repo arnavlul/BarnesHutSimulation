@@ -1,0 +1,8 @@
+# ninja log v7
+16	651	8016066708837026	include/glad/glad.h	8a155f37f330ad9b
+16	651	8016066708837026	src/glad.c	8a155f37f330ad9b
+16	651	8016066708837026	C:/Users/Arnav/source/repos/BarnesHutSimulation/vcpkg_installed/x64-windows/vcpkg/blds/glad/x64-windows-rel/include/glad/glad.h	8a155f37f330ad9b
+16	651	8016066708837026	C:/Users/Arnav/source/repos/BarnesHutSimulation/vcpkg_installed/x64-windows/vcpkg/blds/glad/x64-windows-rel/src/glad.c	8a155f37f330ad9b
+666	1397	8016066709850705	CMakeFiles/glad.dir/src/glad.c.obj	65aa2d11f38cd4f
+1398	1630	8016066717154319	glad.lib	e1488029e0a77367
+1631	1941	8016066719486835	CMakeFiles/install.util	65f09ef41919e44

@@ -1,0 +1,7 @@
+<Solution>
+  <Configurations>
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="BarnesHutSimulation.vcxproj" Id="ee15908a-d506-4cf9-8546-e887e68d8abc" />
+</Solution>
