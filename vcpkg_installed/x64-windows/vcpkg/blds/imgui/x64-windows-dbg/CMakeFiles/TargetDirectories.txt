@@ -1,6 +1,0 @@
-C:/Users/Arnav/source/repos/BarnesHutSimulation/vcpkg_installed/x64-windows/vcpkg/blds/imgui/x64-windows-dbg/CMakeFiles/imgui.dir
-C:/Users/Arnav/source/repos/BarnesHutSimulation/vcpkg_installed/x64-windows/vcpkg/blds/imgui/x64-windows-dbg/CMakeFiles/edit_cache.dir
-C:/Users/Arnav/source/repos/BarnesHutSimulation/vcpkg_installed/x64-windows/vcpkg/blds/imgui/x64-windows-dbg/CMakeFiles/rebuild_cache.dir
-C:/Users/Arnav/source/repos/BarnesHutSimulation/vcpkg_installed/x64-windows/vcpkg/blds/imgui/x64-windows-dbg/CMakeFiles/list_install_components.dir
-C:/Users/Arnav/source/repos/BarnesHutSimulation/vcpkg_installed/x64-windows/vcpkg/blds/imgui/x64-windows-dbg/CMakeFiles/install.dir
-C:/Users/Arnav/source/repos/BarnesHutSimulation/vcpkg_installed/x64-windows/vcpkg/blds/imgui/x64-windows-dbg/CMakeFiles/install/local.dir

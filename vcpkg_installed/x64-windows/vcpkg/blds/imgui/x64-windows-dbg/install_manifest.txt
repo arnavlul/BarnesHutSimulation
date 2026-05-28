@@ -1,4 +1,0 @@
-C:/Users/Arnav/source/repos/BarnesHutSimulation/vcpkg_installed/x64-windows/vcpkg/pkgs/imgui_x64-windows/debug/lib/imguid.lib
-C:/Users/Arnav/source/repos/BarnesHutSimulation/vcpkg_installed/x64-windows/vcpkg/pkgs/imgui_x64-windows/debug/share/imgui/imgui-config.cmake
-C:/Users/Arnav/source/repos/BarnesHutSimulation/vcpkg_installed/x64-windows/vcpkg/pkgs/imgui_x64-windows/debug/share/imgui/imgui-targets.cmake
-C:/Users/Arnav/source/repos/BarnesHutSimulation/vcpkg_installed/x64-windows/vcpkg/pkgs/imgui_x64-windows/debug/share/imgui/imgui-targets-debug.cmake

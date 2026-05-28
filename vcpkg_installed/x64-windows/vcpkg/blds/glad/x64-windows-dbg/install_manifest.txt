@@ -1,7 +1,0 @@
-C:/Users/Arnav/source/repos/BarnesHutSimulation/vcpkg_installed/x64-windows/vcpkg/pkgs/glad_x64-windows/debug/lib/glad.lib
-C:/Users/Arnav/source/repos/BarnesHutSimulation/vcpkg_installed/x64-windows/vcpkg/pkgs/glad_x64-windows/debug/include/glad/glad.h
-C:/Users/Arnav/source/repos/BarnesHutSimulation/vcpkg_installed/x64-windows/vcpkg/pkgs/glad_x64-windows/debug/include/KHR/khrplatform.h
-C:/Users/Arnav/source/repos/BarnesHutSimulation/vcpkg_installed/x64-windows/vcpkg/pkgs/glad_x64-windows/debug/lib/cmake/glad/gladConfig.cmake
-C:/Users/Arnav/source/repos/BarnesHutSimulation/vcpkg_installed/x64-windows/vcpkg/pkgs/glad_x64-windows/debug/lib/cmake/glad/gladConfigVersion.cmake
-C:/Users/Arnav/source/repos/BarnesHutSimulation/vcpkg_installed/x64-windows/vcpkg/pkgs/glad_x64-windows/debug/lib/cmake/glad/gladTargets.cmake
-C:/Users/Arnav/source/repos/BarnesHutSimulation/vcpkg_installed/x64-windows/vcpkg/pkgs/glad_x64-windows/debug/lib/cmake/glad/gladTargets-debug.cmake
