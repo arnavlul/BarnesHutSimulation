@@ -146,6 +146,7 @@
     <ClCompile Include="BarnesHutSimulation.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="notes.md" />
     <None Include="vcpkg.json" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
