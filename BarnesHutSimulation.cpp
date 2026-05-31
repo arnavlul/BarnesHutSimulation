@@ -99,7 +99,8 @@ void generateUniformUniverse(vector<Body>& bodies, const int &particleCount, flo
         Body b;
         b.position = glm::vec3(posGen(gen), posGen(gen), posGen(gen));
         b.velocity = glm::vec3(velGen(gen), velGen(gen), velGen(gen));
-        b.force = glm::vec3(0.0, 0.0, 0.0);
+        b.force = glm::vec3(0.0f);
+        b.oldforce = glm::vec3(0.0f);
         b.mass = massGen(gen);
         bodies.push_back(b);
     }
@@ -112,7 +113,7 @@ void generateBlackHoleCentricUniverse(vector<Body>& bodies, const int& particleC
     random_device rd;
     mt19937 gen(rd());
 
-    uniform_real_distribution<float> angleGen(0.0, 2.0 * 3.14159265);
+    uniform_real_distribution<float> angleGen(0.0f, 2.0f * 3.14159265f);
     normal_distribution<float> radiusGen(0.0f, spawnRange * 0.4f);
     uniform_real_distribution<float> massGen(1.0, 5.0);
     uniform_real_distribution<float> velGen(-1.0, 1.0);
@@ -136,7 +137,8 @@ void generateBlackHoleCentricUniverse(vector<Body>& bodies, const int& particleC
 
         b.position = glm::vec3(radius * cos(theta), radius * sin(theta), radius * sin(phi));
         b.velocity = glm::vec3(cos(phi) * cos(theta) * vel, cos(phi) * sin(theta) * vel, sin(phi) * vel);
-        b.force = glm::vec3(0.0, 0.0, 0.0);
+        b.force = glm::vec3(0.0f);
+        b.oldforce = glm::vec3(0.0f);
         b.mass = massGen(gen);
 
         bodies.push_back(b);
@@ -315,13 +317,21 @@ int main() {
 
         if (!pauseSimulation) {
             for (int i = 0; i < simulationSpeed; i++) {
+
+#pragma omp parallel for num_threads(activeThreads)
+                for (int j = 0; j < bodies.size(); j++) {
+                    glm::vec3 acceleration = bodies[j].force / bodies[j].mass;
+                    bodies[j].position += bodies[j].velocity * dt + 0.5f * acceleration * dt * dt;
+                    bodies[j].oldforce = bodies[j].force;
+                    bodies[j].force = glm::vec3(0.0f);
+                }
+
                 float xMin = FLT_MAX, xMax = -FLT_MAX;
                 float yMin = FLT_MAX, yMax = -FLT_MAX;
                 float zMin = FLT_MAX, zMax = -FLT_MAX;
 
                 // Dynamic Sizing 
                 for (Body& b : bodies) {
-                    b.force = glm::vec3(0.0f);
                     if (b.position.x < xMin) xMin = b.position.x;
                     if (b.position.x > xMax) xMax = b.position.x;
                     if (b.position.y < yMin) yMin = b.position.y;
@@ -345,14 +355,15 @@ int main() {
                     calculateForce(root, &bodies[j]);
                 }
 
+                delete root;
+
 #pragma omp parallel for num_threads(activeThreads)
-                for (int j = 0; j < (int)bodies.size(); j++) {
-                    glm::vec3 acceleration = bodies[j].force / bodies[j].mass;
-                    bodies[j].velocity += acceleration * dt;
-                    bodies[j].position += bodies[j].velocity * dt;
+                for (int j = 0; j < bodies.size(); j++) {
+                    glm::vec3 oldacceleration = bodies[j].oldforce / bodies[j].mass;
+                    glm::vec3 newacceleration = bodies[j].force / bodies[j].mass;
+                    bodies[j].velocity += 0.5f * (oldacceleration + newacceleration) * dt;
                 }
 
-                delete root;
             }
         }
 
