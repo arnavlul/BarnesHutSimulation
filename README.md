@@ -3,7 +3,7 @@
 A C++ implementation of the Barnes-Hut algorithm for efficient N-body simulation. 
 
 ## Overview
-The Barnes-Hut algorithm is an approximation algorithm for performing an n-body simulation. It is notable for having order $O(n \log n)$ complexity compared to the brute-force $O(n^2)$ algorithm. This project visualizes the particles and their interactions in real-time.
+This project is a hybrid N-body simulation engine combining the macroscopic efficiency of the Barnes-Hut algorithm with the microscopic accuracy of a Hermite integrator. It features dynamic clustering ("Submarines") to automatically identify and resolve close encounters in dense regions with high mathematical precision. The Barnes-Hut algorithm provides order $O(n \log n)$ complexity for distant particles, while the Hermite integrator handles tight clusters, ensuring stable physics without phase leakage. The project visualizes the particles and their interactions in real-time.
 
 ## Technologies Used
 - **C++** 
