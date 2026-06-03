@@ -21,11 +21,11 @@ extern "C" {
 
 using namespace std;
 
-const float SOFTENING = 0.1f;
 const float G = 1.0f;
 float dt = 0.01f;
 float THETA = 0.5f;
-const float ETA = 0.02f; // Accuracy parameter in submarine physics (smaller = better)
+const int particleCount = 10000;
+const float SofteningSq = 0.2f;
 
 // Camera Variables
 float cameraRadius = 600.0f;
@@ -86,7 +86,7 @@ void cursor_position_callback(GLFWwindow* window, double xpos, double ypos) {
     }
 }
 
-void generateUniformUniverse(vector<Body>& bodies, const int &particleCount, float spawnRange) {
+void generateUniformUniverse(vector<Body>& bodies, float spawnRange) {
 
     bodies.reserve(particleCount);
 
@@ -103,12 +103,11 @@ void generateUniformUniverse(vector<Body>& bodies, const int &particleCount, flo
         b.velocity = glm::vec3(velGen(gen), velGen(gen), velGen(gen));
         b.acceleration = glm::vec3(0.0f);
         b.mass = massGen(gen);
-        b.radius = pow(b.mass, 1.0f / 3.0f) * 0.5f;
         bodies.push_back(b);
     }
 }
 
-void generateBlackHoleCentricUniverse(vector<Body>& bodies, const int& particleCount, float spawnRange) {
+void generateBlackHoleCentricUniverse(vector<Body>& bodies, float spawnRange) {
 
     bodies.reserve(particleCount);
 
@@ -125,7 +124,6 @@ void generateBlackHoleCentricUniverse(vector<Body>& bodies, const int& particleC
     centralCore.velocity = glm::vec3(0.0, 0.0, 0.0);
     centralCore.acceleration = glm::vec3(0.0f);
     centralCore.mass = 100000.0f;
-    centralCore.radius = pow(centralCore.mass, 1.0f / 3.0f) * 0.5f;
 
     bodies.push_back(centralCore);
 
@@ -143,7 +141,75 @@ void generateBlackHoleCentricUniverse(vector<Body>& bodies, const int& particleC
         b.velocity = glm::vec3(cos(phi) * cos(theta) * vel, cos(phi) * sin(theta) * vel, sin(phi) * vel);
         b.acceleration = glm::vec3(0.0f);
         b.mass = massGen(gen);
-        b.radius = pow(b.mass, 1.0f / 3.0f) * 0.5f;
+
+        bodies.push_back(b);
+    }
+}
+
+void generateGalaxyUniverse(vector<Body>& bodies, float spawnRange) {
+    bodies.clear();
+    bodies.reserve(particleCount + 1);
+
+    random_device rd;
+    mt19937 gen(rd());
+
+    // 1. Spatial Distributions (Creating the thin disk)
+    // Exponential distribution clusters stars near the center
+    exponential_distribution<float> radiusDist(3.0f / spawnRange);
+    uniform_real_distribution<float> angleDist(0.0f, 2.0f * 3.14159265f);
+    // Normal distribution creates a very thin height profile (Y-axis)
+    normal_distribution<float> heightDist(-spawnRange * 0.02f, spawnRange * 0.02f);
+
+    uniform_real_distribution<float> massDist(1.0f, 5.0f);
+    float smbhMass = 100000.0f;
+
+    // ---------------------------------------------------------
+    // GENERATE THE SUPERMASSIVE BLACK HOLE
+    // ---------------------------------------------------------
+    Body smbh;
+    smbh.position = glm::vec3(0.0f);
+    smbh.velocity = glm::vec3(0.0f);
+    smbh.acceleration = glm::vec3(0.0f);
+
+    smbh.mass = smbhMass;
+    bodies.push_back(smbh);
+
+    // ---------------------------------------------------------
+    // GENERATE THE ORBITING STARS
+    // ---------------------------------------------------------
+    for (int i = 0; i < particleCount; i++) {
+        Body b;
+
+        // 1. Calculate Spatial Position
+        float r = radiusDist(gen);
+        // Clamp bounds to prevent spawning inside the black hole or outside the map
+
+        float theta = angleDist(gen);
+        float y = heightDist(gen); // Disk is on the X-Z plane, Y is height
+
+        b.position = glm::vec3(r * cos(theta), y, r * sin(theta));
+
+        // 2. Calculate Orbital Velocity
+        // v = sqrt(G * M / r)
+        float orbitalVelocity = sqrt((G * smbhMass) / r);
+
+        // Calculate the Tangent Vector (perpendicular to the radius in the X-Z plane)
+        // If position is (x, z), tangent is (-z, x)
+        glm::vec3 tangent = glm::normalize(glm::vec3(-b.position.z, 0.0f, b.position.x));
+
+        // Add 5% random velocity noise (Velocity Dispersion)
+        // This prevents the galaxy from looking like a perfect, artificial DVD ring 
+        // and gives the Hermite solver organic clumping to work with.
+        normal_distribution<float> noiseDist(0.0f, orbitalVelocity * 0.05f);
+        glm::vec3 velocityNoise = glm::vec3(noiseDist(gen), noiseDist(gen), noiseDist(gen));
+
+        b.velocity = (tangent * orbitalVelocity) + velocityNoise;
+
+        // 3. Zero out ALL integration memory for GPU safety
+        b.acceleration = glm::vec3(0.0f);
+
+        b.mass = massDist(gen);
+
 
         bodies.push_back(b);
     }
@@ -163,7 +229,7 @@ void calculateForce(OctNode* node, Body* targetBody) {
             float distanceSq = direction.x * direction.x + direction.y * direction.y + direction.z * direction.z;
             float distance = sqrt(distanceSq);
 
-            float accelMag = (G * b->mass) / (distanceSq + SOFTENING * SOFTENING);
+            float accelMag = (G * b->mass) / (distanceSq + SofteningSq);
             targetBody->acceleration += (direction / distance) * accelMag;
         }
     }
@@ -174,7 +240,7 @@ void calculateForce(OctNode* node, Body* targetBody) {
 
         if ((width * width) < (THETA * THETA * distanceSq)) { // Treat node as one body
             float distance = sqrt(distanceSq);
-            float accelMag = (G * node->totalMass) / (distanceSq + SOFTENING * SOFTENING);
+            float accelMag = (G * node->totalMass) / (distanceSq + SofteningSq);
             targetBody->acceleration += (direction / distance) * accelMag;
         }
         else { // Recurse
@@ -189,135 +255,16 @@ void calculateForce(OctNode* node, Body* targetBody) {
 
 }
 
-void calculateExactHermite(vector<Body>& bodies, vector<int>& subIndices, int targetIdx) {
+void calculateDriftersForce(OctNode *root, Body *drifter) {
 
-    Body& target = bodies[targetIdx];
-    target.acceleration = glm::vec3(0.0f);
-    target.jerk = glm::vec3(0.0f);
+    if (drifter->mass == 0.0) return;
 
-    for (int idx : subIndices) {
+    glm::vec3 direction = root->centerOfMass - drifter->position;
+    float distanceSq = direction.x * direction.x + direction.y * direction.y + direction.z * direction.z;
+    float distance = sqrt(distanceSq);
 
-        if (idx == targetIdx || bodies[idx].mass <= 0.0f) continue;
-
-        Body& source = bodies[idx];
-
-        glm::vec3 r_vec = source.predposition - target.predposition;
-        glm::vec3 v_vec = source.predvelocity - target.predvelocity;
-
-        float rSq = r_vec.x * r_vec.x + r_vec.y * r_vec.y + r_vec.z * r_vec.z;
-
-        if (sqrt(rSq) < (target.radius + source.radius)) { // Collision
-
-            float totalMass = target.mass + source.mass;
-            target.velocity = (target.velocity * target.mass + source.velocity * source.mass) / totalMass;
-            target.position = (target.position * target.mass + source.position * source.mass) / totalMass;
-            target.mass = totalMass;
-            target.radius = pow(totalMass, 1.0f / 3.0f) * 0.5f;
-            source.mass = 0.0f;
-            continue;
-
-        }
-
-        float r_mag = sqrt(rSq);
-        float r3 = rSq * r_mag;
-        float r5 = r3 * rSq;
-        float r_dot_v = glm::dot(r_vec, v_vec);
-        float a_mag = (G * source.mass) / rSq;
-        target.acceleration += (r_vec / r_mag) * a_mag;
-
-        target.jerk += G * source.mass * ((v_vec / r3) - (3.0f * r_dot_v * r_vec) / r5);
-
-    }
-
-}
-
-void resolveSubmarinePhysics(vector<Body>& bodies, Submarine& sub, float macro_dt) {
-
-    float current_sub_time = 0.0f;
-
-    for (int idx : sub.particleIndices) {
-
-        bodies[idx].position -= bodies[idx].velocity * macro_dt;
-        bodies[idx].velocity -= bodies[idx].acceleration * (macro_dt / 2.0f);
-
-        bodies[idx].t_current = 0.0f;
-        bodies[idx].predposition = bodies[idx].position;
-        bodies[idx].predvelocity = bodies[idx].velocity;
-
-        // Get initial acceleration and jerk
-        calculateExactHermite(bodies, sub.particleIndices, idx);
-        bodies[idx].oldacceleration = bodies[idx].acceleration;
-        bodies[idx].oldjerk = bodies[idx].jerk;
-
-
-        // Calculate dt: dt = ETA / sqrt(|a| * |j|)
-
-        float a_mag = glm::length(bodies[idx].acceleration);
-        float j_mag = glm::length(bodies[idx].jerk);
-        float ideal_dt = (j_mag > 0.0001f) ? ETA / (sqrt(a_mag * j_mag)) : macro_dt;
-
-        // Quantised to power of 2
-        bodies[idx].block_dt = pow(2.0f, floor(log2(fmin(ideal_dt, macro_dt))));
-
-    }
-
-    while (current_sub_time < macro_dt) {
-
-        float t_next = macro_dt;
-        for (int idx : sub.particleIndices) {
-            if (bodies[idx].mass <= 0.0f) continue;
-            float next_tick = bodies[idx].t_current + bodies[idx].block_dt;
-            if (next_tick < t_next) t_next = next_tick;
-        }
-
-        vector<int> activeList;
-        for (int idx : sub.particleIndices) {
-            if (bodies[idx].mass <= 0.0f) continue;
-
-            Body& b = bodies[idx];
-            float delta_t = t_next - b.t_current;
-
-            b.predposition = b.position + b.velocity * delta_t + 0.5f * b.oldacceleration * (delta_t * delta_t) + (1.0f / 6.0f) * b.oldjerk * (delta_t * delta_t * delta_t);
-            b.predvelocity = b.velocity + b.oldacceleration * delta_t + 0.5f * b.oldjerk * (delta_t * delta_t);
-
-            if (abs((b.t_current + b.block_dt) - t_next) < 1e-6) {
-                activeList.push_back(idx);
-            }
-
-        }
-
-        // Exact gravity for active particles only
-
-        for (int idx : activeList) {
-
-            Body& activeBody = bodies[idx];
-            float dt_i = activeBody.block_dt;
-
-            // Calcualte new a1 and j1
-            calculateExactHermite(bodies, sub.particleIndices, idx);
-            glm::vec3 a1 = activeBody.acceleration;
-            glm::vec3 j1 = activeBody.jerk;
-
-            // Hermite Corrector Math
-            glm::vec3 v0 = activeBody.velocity;
-            activeBody.velocity += 0.5f * (activeBody.oldacceleration + a1) * dt_i + (1.0f / 12.0f) * (activeBody.oldjerk - j1) * (dt_i * dt_i);
-            activeBody.position += 0.5f * (v0 + activeBody.velocity) * dt_i + (1.0f / 12.0f) * (activeBody.oldacceleration - a1) * (dt_i * dt_i);
-
-            // Save old states
-            activeBody.oldacceleration = a1;
-            activeBody.oldjerk = j1;
-            activeBody.t_current = t_next;
-
-            // Recalculate block time-step
-            float a_mag = glm::length(a1);
-            float j_mag = glm::length(j1);
-            float ideal_dt = (j_mag > 0.0001f) ? ETA * sqrt(a_mag / j_mag) : macro_dt;
-            activeBody.block_dt = pow(2.0f, floor(log2(fmin(ideal_dt, macro_dt - activeBody.t_current))));
-
-        }
-
-        current_sub_time = t_next;
-    }
+    float accelMag = (G * root->totalMass) / (distanceSq + SofteningSq);
+    drifter->acceleration += (direction / distance) * accelMag;
 
 }
 
@@ -336,6 +283,8 @@ const char* fragmentShaderSource = "#version 330 core\n"
     "   FragColor = vec4(0.5, 0.8, 1.0, 1.0);\n"
     "}\n\0";
 
+
+
 int main() {
 
     if (!glfwInit()) {
@@ -343,7 +292,7 @@ int main() {
         return -1;
     }
 
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
@@ -403,26 +352,28 @@ int main() {
     // Allocate GPU Memory for bodies
 
     vector<Body> bodies;
-    generateBlackHoleCentricUniverse(bodies, 1000, 300);
+    generateGalaxyUniverse(bodies, 300);
     glBufferData(GL_ARRAY_BUFFER, bodies.size() * sizeof(Body), bodies.data(), GL_DYNAMIC_DRAW);
 
     // Tell OpenGL how to read position from body struct
     // Stride = sizeof(Body), offset is where 'position' starts
     
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Body), (void*)offsetof(Body, position));
-
     glEnableVertexAttribArray(0);
 
     // Allow z-depth sortin and change point size
     glEnable(GL_DEPTH_TEST);
+
     glPointSize(2.0f);
 
-   
+  
+
 
     bool pauseSimulation = false;
     int simulationSpeed = 1;
     int maxThreads = omp_get_max_threads();
     int activeThreads = 1;
+    glm::vec3 systemCOM = glm::vec3(0.0f);
 
 
     while (!glfwWindowShouldClose(window)) {
@@ -444,9 +395,9 @@ int main() {
 
             ImGui::SliderInt("Fast Forward", &simulationSpeed, 1, 20);
 
-            ImGui::SliderInt("CPu Threads", &activeThreads, 1, maxThreads);
+            ImGui::SliderInt("CPU Threads", &activeThreads, 1, maxThreads);
 
-            ImGui::Text("Application average: %.3f ms/frame; FPS: (%.1f FPS)", 1000.f / io.Framerate, io.Framerate);
+            ImGui::Text("Application average: %.3f ms/frame; FPS: (%.1f FPS), COM: {%.3f, %.3f, %.3f}", 1000.f / io.Framerate, io.Framerate, systemCOM.x, systemCOM.y, systemCOM.z);
 
 
             ImGui::End();
@@ -455,15 +406,69 @@ int main() {
         if (!pauseSimulation) {
             for (int i = 0; i < simulationSpeed; i++) {
 
+
+                // First 2 updates of KDK Leapfrog
 #pragma omp parallel for num_threads(activeThreads)
                 for (int j = 0; j < bodies.size(); j++) {
+                    if (bodies[j].state == 2) continue;
                     bodies[j].velocity += bodies[j].acceleration * (dt / 2.0f);
-                    bodies[j].position += bodies[j].velocity * dt;
+                    bodies[j].position += bodies[j].velocity * (dt);
                 }
 
-                SubmarineManager submanager;
-                vector<Submarine> activeSubs;
-                submanager.findSubmarine(bodies, activeSubs);   
+                // Calculating Standard Deviation
+                float sum_r = 0.0;
+                int valid_count = 0;
+
+                for (const Body& b : bodies) {
+                    if (b.mass > 0.0f && b.state == 0) {
+                        sum_r += glm::length(b.position);
+                        valid_count++;
+                    }
+                }
+
+                float mu = (valid_count > 0) ? (sum_r / valid_count) : 0.0f;
+
+                float sum_variance = 0.0f;
+                for (const Body& b : bodies) {
+                    if (b.mass > 0.0f && b.state == 0) {
+                        float r = glm::length(b.position);
+                        sum_variance += (r - mu) * (r - mu);
+                    }
+                }
+
+                float sigma = (valid_count > 0) ? sqrt(sum_variance / valid_count) : 0.0f;
+
+                float MAX_BOUND = (valid_count > 0) ? max(300.0f, mu + (5 * sigma)) : 800.0f;
+
+                // Calculating mass for escape velocity
+                float totalMass = 0.0f;
+#pragma omp parallel for reduction(+:totalMass) num_threads(activeThreads)
+                for (int j = 0; j < bodies.size(); j++) {
+                    if (bodies[j].state == 0) totalMass += bodies[j].mass;
+                }
+
+                float escVelTerm = 2 * G * totalMass;
+
+#pragma omp parallel for num_threads(activeThreads)
+                for (int j = 0; j < bodies.size(); j++) {
+                    if (bodies[j].mass <= 0) continue;
+
+                    float distance = glm::length(bodies[j].position);
+
+                    if (distance <= MAX_BOUND) {
+                        if (bodies[j].state == 1) bodies[j].state = 0;
+                
+                    }
+                    else {
+                        glm::vec3 vel = bodies[j].velocity;
+                        float velsq = vel.x * vel.x + vel.y * vel.y + vel.z * vel.z;
+
+                        if (velsq >= (escVelTerm / max(0.1f, glm::length(bodies[j].position)))) bodies[j].state = 2; // Velocity greater than escape velocity (sqrt(2GM / r)); Comparing squares of both sides here
+                        else bodies[j].state = 1; // Drifter but not removed
+                    }
+                }
+
+                 
 
                 float xMin = FLT_MAX, xMax = -FLT_MAX;
                 float yMin = FLT_MAX, yMax = -FLT_MAX;
@@ -471,6 +476,7 @@ int main() {
 
                 // Dynamic Sizing 
                 for (Body& b : bodies) {
+                    if (b.state == 1 || b.state == 2) continue;
                     if (b.position.x < xMin) xMin = b.position.x;
                     if (b.position.x > xMax) xMax = b.position.x;
                     if (b.position.y < yMin) yMin = b.position.y;
@@ -479,6 +485,10 @@ int main() {
                     if (b.position.z > zMax) zMax = b.position.z;
                 }
 
+
+                
+                
+                // Initialising universe
                 glm::vec3 universeCenter = glm::vec3((xMin + xMax) / 2.0, (yMin + yMax) / 2.0, (zMin + zMax) / 2.0);
                 float universeHalfWidth = max({ (xMax - universeCenter.x), (yMax - universeCenter.y), (zMax - universeCenter.z) });
                 BoundingBox universeBoundingBox(universeCenter, universeHalfWidth + 1.0f);
@@ -486,54 +496,38 @@ int main() {
                 OctNode* root = new OctNode(universeBoundingBox, 0);
 
                 for (Body& b : bodies) {
-                    if (b.submarineID == -1) root->insert(&b);
+                    if (b.state == 0) root->insert(&b);
                 }
 
-                vector<Body> ghostNodes;
-                ghostNodes.reserve(activeSubs.size());
-                for (const auto& sub : activeSubs) {
-                    Body sNode;
-                    sNode.position = sub.COM;
-                    sNode.velocity = sub.velCOM;
-                    sNode.mass = sub.totalMass;
-                    sNode.acceleration = glm::vec3(0.0f);
-                    ghostNodes.push_back(sNode);
-                }
-
-                for (Body& sNode : ghostNodes) root->insert(&sNode);
 
                 root->computeMassDistribution();
 
-#pragma omp parallel for num_threads(activeThreads)
-                for (int j = 0; j < (int)bodies.size(); j++) {
-                    bodies[j].acceleration = glm::vec3(0.0f);
-                    if (bodies[j].submarineID == -1) calculateForce(root, &bodies[j]);
-                }
+                float globalMass = root->totalMass;
+                glm::vec3 globalCOM = root->centerOfMass;
 
-
-#pragma omp parallel for num_threads(activeThreads)
-                for (int j = 0; j < ghostNodes.size(); j++) {
-                    calculateForce(root, &ghostNodes[j]);
-                }
-
-                delete root;
-
-                for (int j = 0; j < activeSubs.size(); j++) {
-                    Submarine& sub = activeSubs[j];
-                    glm::vec3 macroPull = ghostNodes[j].acceleration;
-
-                    for (int idx : sub.particleIndices) {
-                        bodies[idx].oldacceleration = macroPull;
-                    }
-                    resolveSubmarinePhysics(bodies, sub, dt);
-                }
+                
 
 #pragma omp parallel for num_threads(activeThreads)
                 for (int j = 0; j < bodies.size(); j++) {
-                    if (bodies[j].submarineID == -1) bodies[j].velocity += bodies[j].acceleration * (dt / 2.0f);
+                    bodies[j].acceleration = glm::vec3(0.0f);
+                    if (bodies[j].state == 0) {
+                        calculateForce(root, &bodies[j]);
+                    }
+                    else if (bodies[j].state == 1) {
+                        calculateDriftersForce(root, &bodies[j]);
+                    }
                 }
 
-                bodies.erase(remove_if(bodies.begin(), bodies.end(), [](const Body& b) {return b.mass <= 0.0f;}), bodies.end());
+                // Final KDK Step
+#pragma omp parallel for num_threads(activeThreads)
+                for (int j = 0; j < bodies.size(); j++) {
+                    if (bodies[j].state == 2) continue;
+                    bodies[j].velocity += bodies[j].acceleration * (dt / 2.0f);
+                }
+                    
+
+                delete root;
+
 
             }
         }
