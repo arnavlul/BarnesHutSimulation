@@ -12,6 +12,17 @@ An ultra-high-performance, CUDA-accelerated 3D N-body gravity simulator and cine
 
 ---
 
+## Prerequisites & Installation
+
+To build and run this simulation, your system must have the following installed:
+
+1. **NVIDIA GPU & CUDA Toolkit**: Required for the hardware-accelerated physics engine. Make sure you have the latest drivers and the [CUDA Toolkit](https://developer.nvidia.com/cuda-toolkit) installed.
+2. **Visual Studio & C++ Build Tools**: Required to compile the `.cu` and `.cpp` files. Ensure the "Desktop development with C++" workload is installed.
+3. **vcpkg** *(Optional but Recommended)*: Used for managing C++ dependencies like OpenGL, GLFW, and GLM.
+4. **FFmpeg**: **Required** if you want to use the "Cinematic MP4 Export" feature. You must download [FFmpeg](https://ffmpeg.org/download.html) and add its `bin` folder to your system's `PATH` environment variable so the application can invoke it.
+
+---
+
 ## Launch Modes
 
 Upon launching the application, you are presented with the ImGui Launcher Menu. There are four primary tabs/modes of operation:
