@@ -105,7 +105,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -115,7 +115,7 @@
       <EnableSegmentHeap>true</EnableSegmentHeap>
     </Manifest>
     <CudaCompile>
-      <AdditionalOptions> -Xcompiler /std:c++14 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions> -Xcompiler /std:c++17 %(AdditionalOptions)</AdditionalOptions>
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -126,7 +126,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -136,7 +136,7 @@
       <EnableSegmentHeap>true</EnableSegmentHeap>
     </Manifest>
     <CudaCompile>
-      <AdditionalOptions> -Xcompiler /std:c++14 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions> -Xcompiler /std:c++17 %(AdditionalOptions)</AdditionalOptions>
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -145,7 +145,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalIncludeDirectories>$(ProjectDir)vcpkg_installed\x64-windows\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -159,7 +159,7 @@
     </Manifest>
     <CudaCompile>
 
-      <AdditionalOptions>-std=c++14 -Xcompiler /std:c++14 --expt-relaxed-constexpr %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>-std=c++17 -Xcompiler /std:c++17 -Xcompiler /Zc:preprocessor --expt-relaxed-constexpr %(AdditionalOptions)</AdditionalOptions>
       <Include>$(ProjectDir)vcpkg_installed\x64-windows\include;%(Include)</Include>
     </CudaCompile>
   </ItemDefinitionGroup>
@@ -171,7 +171,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard>stdcpp17</LanguageStandard>
       <OpenMPSupport>true</OpenMPSupport>
       <FloatingPointModel>Fast</FloatingPointModel>
       <AdditionalIncludeDirectories>$(ProjectDir)vcpkg_installed\x64-windows\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -187,7 +187,7 @@
     </Manifest>
     <CudaCompile>
 
-      <AdditionalOptions>-std=c++14 -Xcompiler /std:c++14 --expt-relaxed-constexpr %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>-std=c++17 -Xcompiler /std:c++17 -Xcompiler /Zc:preprocessor --expt-relaxed-constexpr %(AdditionalOptions)</AdditionalOptions>
       <Include>$(ProjectDir)vcpkg_installed\x64-windows\include;%(Include)</Include>
     </CudaCompile>
   </ItemDefinitionGroup>

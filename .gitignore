@@ -369,3 +369,12 @@ replies.txt
 imgui.ini
 *.py
 .antigravitycli/
+
+# Simulation Outputs
+simulation files/
+exported videos/
+build_log.txt
+
+# Markdown files
+*.md
+!README.md
