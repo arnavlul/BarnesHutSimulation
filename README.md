@@ -51,7 +51,7 @@ When launching a new simulation, you can select from the following procedural se
 1. **Standard Spiral Galaxy**: A stable, rotating disc of stars orbiting a supermassive central black hole, complete with velocity dispersion for organic clumping.
 2. **Galaxy Collision (The Milky Way & Andromeda)**: Two massive spiral galaxies placed on a collision course to demonstrate violent tidal forces and sweeping tails.
 3. **Binary Accretion System**: Two supermassive black holes in a tight orbit, tearing apart and consuming a surrounding cloud of stars.
-4. **Cosmological Web**: A chaotic, uniform cube of particles that rapidly collapses into filament-like structures and dense clusters, mimicking dark matter web formation.
+4. **Cosmological Web**: Was supposed to collapse into filament like structures, but just coalesces into a ball if waiting long enough.
 5. **The Disrupted Ring**: A stable, hollow torus of stars that slowly succumbs to gravitational instabilities, breaking apart into dense nodes.
 6. **The Cluster 3-Body Problem**: Three exceptionally dense, ultra-massive globular clusters arranged in an equilateral triangle and given chaotic intersecting velocities. They tear each other apart in a spectacular display of the 3-body problem.
 
