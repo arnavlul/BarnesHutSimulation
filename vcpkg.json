@@ -1,7 +1,6 @@
 {
   "name": "barnes-hut-simulation",
-  "version": "0.1.0",
-  "builtin-baseline": "4b77da7fed37817f124936239197833469f1b9a8",
+  "version": "1.0.0",
   "dependencies": [
     "glfw3",
     "glad",
@@ -13,5 +12,6 @@
         "opengl3-binding"
       ]
     }
-  ]
+  ],
+  "builtin-baseline": "4b77da7fed37817f124936239197833469f1b9a8"
 }

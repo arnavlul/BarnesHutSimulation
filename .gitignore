@@ -364,3 +364,8 @@ FodyWeavers.xsd
 
 vcpkg_installed/
 notes.md
+replies.txt
+# App specifics
+imgui.ini
+*.py
+.antigravitycli/
