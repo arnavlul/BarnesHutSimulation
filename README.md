@@ -1,5 +1,7 @@
 # GPU-Accelerated Barnes-Hut N-Body Simulation
 
+<img src="github_gifs/readme_demo_1.gif" width="33%" alt="Spinning Galaxy Simulation Demo" />
+
 An ultra-high-performance, CUDA-accelerated 3D N-body gravity simulator and cinematic renderer. This project implements the Barnes-Hut algorithm with a fully parallelized Karras Octree builder directly on the GPU, allowing for the simulation of hundreds of thousands of particles at real-time framerates. 
 
 ## Key Features
@@ -24,6 +26,13 @@ To build and run this simulation, your system must have the following installed:
 ---
 
 ## Launch Modes
+
+<p float="left">
+  <img src="github_images/menu_realtime.png" width="24%" />
+  <img src="github_images/menu_precalc.png" width="24%" />
+  <img src="github_images/menu_playback.png" width="24%" />
+  <img src="github_images/menu_export.png" width="24%" />
+</p>
 
 Upon launching the application, you are presented with the ImGui Launcher Menu. There are four primary tabs/modes of operation:
 
@@ -56,6 +65,8 @@ Render your simulation out to a final, high-quality `.mp4` video.
 ---
 
 ## Starting Scenarios (Initial Conditions)
+
+<img src="github_gifs/readme_demo_2.gif" width="33%" alt="Galactic Collision Simulation Demo" />
 
 When launching a new simulation, you can select from the following procedural setups:
 
